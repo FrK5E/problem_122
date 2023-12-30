@@ -26,27 +26,24 @@ void min_multiplications( int max, std::vector<int> & result ){
 
 
 
-  std::vector<int> combinations = {1}; 
+  std::set<int> combinations = {1};
+  int iter_nr=1; 
   while (!all_elements_nonzero(result)) {
+    std::set<int> new_combinations; 
+    for ( auto i : combinations ) { 
+        for ( auto j:  combinations ) {
 
-    std::map<int> new_combinations; 
-
-    for ( std::size_t i=0; i<combinations.size(); i++ ) { 
-        for ( std::size_t j=i; j<combinations.size(); j++ ) {
-
-            int k = combinations[i]+combinations[j];
-
-            
-
-
-            
+            int k = i+j;
+            new_combinations.insert( k );
+            if (result[k]==0) { 
+                result[k] = iter_nr;
+            }
         }
     }
 
-
+    combinations.insert( new_combinations.begin(), new_combinations.end() );
 
   }
-
 
 }
 
