@@ -16,19 +16,46 @@ class LeafCollector {
             leafs.insert( &node );
         }
     }
-
-    private: 
     std::set<Node *> leafs; 
 };
 
+class ParentsNumbers { 
+    public: 
+
+    void processNode( const Node & node ) { 
+        numbers.push_back( node.number );
+    } 
+    std::vector<int> numbers; 
+};
+
+
+
 
 void visit_all( Node & root, std::function<void(Node &)> action ){
-
+    action(root);
     for ( auto n :  root.children ) {
-        action( *n );
         visit_all( *n, action );
     }
 }; 
+
+void visit_parents( const Node & root, std::function<void(const Node&)> action) { 
+    action(root); 
+    if (root.parent) { 
+        visit_parents(*root.parent, action);
+    }
+}
+
+
+
+bool all_elements_nonzero( std::vector<int> & array ) {
+ 
+    for ( const auto & i: array ) { 
+        if (i==0) { 
+            return false;
+        }
+    }
+    return true;
+}
 
 
 void min_multiplications( int max, std::vector<int> & result ){ 
@@ -44,13 +71,37 @@ void min_multiplications( int max, std::vector<int> & result ){
 
 
 
-  Node root(nullptr);
+  Node root(nullptr, 1);
 
-  LeafCollector a; 
-  visit_all(root, [&a] (Node & node ) { a.processNode(node); } ); 
+  int iter_nr = 1;
+  while ( !all_elements_nonzero(result)) { 
+    LeafCollector a; 
+    visit_all(root, [&a] (Node & node ) { a.processNode(node); } ); 
 
-  ;
+    for ( auto leaf: a.leafs ) { 
+        ParentsNumbers parents; 
+        visit_parents( *leaf , [&parents](const Node & node) { parents.processNode(node); } );
+
+        int n1 = parents.numbers[0];
+        for ( auto n: parents.numbers) { 
+
+            int new_number = n*n1;
+            Node * iter = new Node( leaf, new_number );
+            if  ( new_number<=max) { 
+                result[new_number] = iter_nr;
+            }
+
+        }
+
+    }
+
+    iter_nr++; 
+
+  }
   
+
+  
+
 
   
 
