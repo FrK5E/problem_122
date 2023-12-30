@@ -1,16 +1,34 @@
 
 #include <vector>
 #include <set>
+#include <iostream>
+#include <functional>
 
-bool all_elements_nonzero( std::vector<int> & array ) {
- 
-    for ( const auto & i: array ) { 
-        if (i==0) { 
-            return false;
+#include "Node.h"
+
+
+
+class LeafCollector { 
+    public:
+
+    void processNode( Node &  node ) { 
+        if (node.children.empty()) { 
+            leafs.insert( &node );
         }
     }
-    return true;
-}
+
+    private: 
+    std::set<Node *> leafs; 
+};
+
+
+void visit_all( Node & root, std::function<void(Node &)> action ){
+
+    for ( auto n :  root.children ) {
+        action( *n );
+        visit_all( *n, action );
+    }
+}; 
 
 
 void min_multiplications( int max, std::vector<int> & result ){ 
@@ -26,24 +44,17 @@ void min_multiplications( int max, std::vector<int> & result ){
 
 
 
-  std::set<int> combinations = {1};
-  int iter_nr=1; 
-  while (!all_elements_nonzero(result)) {
-    std::set<int> new_combinations; 
-    for ( auto i : combinations ) { 
-        for ( auto j:  combinations ) {
+  Node root(nullptr);
 
-            int k = i+j;
-            new_combinations.insert( k );
-            if (result[k]==0) { 
-                result[k] = iter_nr;
-            }
-        }
-    }
+  LeafCollector a; 
+  visit_all(root, [&a] (Node & node ) { a.processNode(node); } ); 
 
-    combinations.insert( new_combinations.begin(), new_combinations.end() );
+  ;
+  
 
-  }
+  
+
+
 
 }
 
@@ -54,6 +65,12 @@ int main( int argc, char * argv[] ) {
     
 
     min_multiplications( 15, data );
+    
+    size_t idx=0;
+    for ( auto i: data ) { 
+        std::cout<< idx << "  " << i << std::endl;
+        idx++;
+    }
 
     return 0;
 }
